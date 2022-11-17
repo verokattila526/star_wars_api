@@ -1,0 +1,52 @@
+version: "3.8"
+services:
+  # NGINX
+  nginx:
+    container_name: nginx
+    restart: always
+    image: nginx:alpine
+    env_file:
+      - .env
+    environment:
+      BACKEND_PORT: ${BACKEND_PORT}
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template
+    ports:
+      - "${NGINX_PORT}:80"
+    logging:
+      driver: none
+
+  # DATABASE
+  database:
+    container_name: database
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./database
+    depends_on:
+      - nginx
+    env_file:
+      - .env
+    environment:
+      MARIADB_DATABASE: ${DATABASE}
+      MARIADB_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "${DATABASE_PORT}:3306"
+    logging:
+      driver: none
+
+  # BACKEND
+  backend:
+    container_name: backend
+    restart: always
+    image: node:current-alpine
+    working_dir: /app
+    depends_on:
+      - database
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+    ports:
+      - "${BACKEND_PORT}:3000"
+    entrypoint: ["npm", "run", "start"]

@@ -1,0 +1,10 @@
+{
+  "name": "devoralime-interview-angular-test",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "docker-compose up"
+  },
+  "dependencies": {
+    "docker": "^1.0.0"
+  }
+}
